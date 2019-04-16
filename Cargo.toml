@@ -1,5 +1,5 @@
 [package]
-name = "my-ip"
+name = "my_ip"
 version = "0.1.0"
 authors = ["Talha Zengin <zengintalha@gmail.com>"]
 edition = "2018"
