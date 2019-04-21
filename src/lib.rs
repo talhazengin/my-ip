@@ -23,7 +23,6 @@ use regex::Regex;
 //         TX packets 11001  bytes 570940 (557.5 KiB)
 //         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 
-
 #[cfg(target_family = "unix")]
 pub fn get_local_ip() -> Option<IpAddr> {
     let output = Command::new("ifconfig")
@@ -33,18 +32,8 @@ pub fn get_local_ip() -> Option<IpAddr> {
     let stdout = String::from_utf8(output.stdout).unwrap();
 
     let regex = Regex::new(r#"(?m)^.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*$"#).unwrap();
-
-    for cap in regex.captures_iter(&stdout) {
-        if let Some(host) = cap.at(2) {
-            if host != "127.0.0.1" {
-                if let Ok(addr) = host.parse::<Ipv4Addr>() {
-                    return Some(IpAddr::V4(addr))
-                }
-            }
-        }
-    }
-
-    None
+    
+    return find_ip_by_regex(regex, stdout);
 }
 
 
@@ -84,7 +73,11 @@ pub fn get_local_ip() -> Option<IpAddr> {
     
     let regex = Regex::new(r#"(?m)^.*IPv4 Address. . . . . . . . . . . : (Addr:)?(([0-9]*\.){3}[0-9]*).*$"#).unwrap();
 
-    for cap in regex.captures_iter(&stdout) {
+    return find_ip_by_regex(regex, stdout);
+}
+
+fn find_ip_by_regex(regex: Regex, content: String) -> Option<IpAddr> {
+    for cap in regex.captures_iter(&content) {
         if let Some(host) = cap.at(2) {
             if let Ok(addr) = host.parse::<Ipv4Addr>() {
                 return Some(IpAddr::V4(addr))
