@@ -1,31 +1,6 @@
-extern crate regex;
-
 use std::process::Command;
 use std::net::{IpAddr, Ipv4Addr};
 use regex::Regex;
-
-#[cfg(target_os = "macos")]
-pub fn get_local_ip() -> Option<IpAddr> {
-    let output = Command::new("ifconfig")
-        .output()
-        .expect("failed to execute `ifconfig`");
-
-    let stdout = String::from_utf8(output.stdout).unwrap();
-
-    let re = Regex::new(r#"(?m)^.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*$"#).unwrap();
-
-    for cap in re.captures_iter(&stdout) {
-        if let Some(host) = cap.at(2) {
-            if host != "127.0.0.1" {
-                if let Ok(addr) = host.parse::<Ipv4Addr>() {
-                    return Some(IpAddr::V4(addr))
-                }
-            }
-        }
-    }
-
-    None
-}
 
 // LINUX EXAMPLE IFCONFIG
 //
@@ -71,33 +46,50 @@ pub fn get_local_ip() -> Option<IpAddr> {
     None
 }
 
+#[cfg(target_os = "macos")]
+pub fn get_local_ip() -> Option<IpAddr> {
+    let output = Command::new("ifconfig")
+        .output()
+        .expect("failed to execute `ifconfig`");
+
+    let stdout = String::from_utf8(output.stdout).unwrap();
+
+    let re = Regex::new(r#"(?m)^.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*$"#).unwrap();
+
+    for cap in re.captures_iter(&stdout) {
+        if let Some(host) = cap.at(2) {
+            if host != "127.0.0.1" {
+                if let Ok(addr) = host.parse::<Ipv4Addr>() {
+                    return Some(IpAddr::V4(addr))
+                }
+            }
+        }
+    }
+
+    None
+}
+
 
 // WINDOWS EXAMPLE IPCONFIG
 //
 // Windows IP Configuration
-//
 // Ethernet adapter Ethernet:
-//
 //    Media State . . . . . . . . . . . : Media disconnected
 //    Connection-specific DNS Suffix  . : home
 //
 // Wireless LAN adapter Local Area Connection* 2:
-//
 //    Media State . . . . . . . . . . . : Media disconnected
 //    Connection-specific DNS Suffix  . :
 //
 // Wireless LAN adapter Local Area Connection* 3:
-//
 //    Media State . . . . . . . . . . . : Media disconnected
 //    Connection-specific DNS Suffix  . :
 //
 // Ethernet adapter Ethernet 2:
-//
 //    Media State . . . . . . . . . . . : Media disconnected
 //    Connection-specific DNS Suffix  . :
 //
 // Wireless LAN adapter Wi-Fi:
-//
 //    Connection-specific DNS Suffix  . : home
 //    Link-local IPv6 Address . . . . . : fe80::9091:50fe:cf97:9af6%11
 //    IPv4 Address. . . . . . . . . . . : 192.168.1.47
