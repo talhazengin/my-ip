@@ -24,30 +24,7 @@ use regex::Regex;
 //         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 
 
-#[cfg(target_os = "linux")]
-pub fn get_local_ip() -> Option<IpAddr> {
-    let output = Command::new("ifconfig")
-        .output()
-        .expect("failed to execute `ifconfig`");
-
-    let stdout = String::from_utf8(output.stdout).unwrap();
-
-    let regex = Regex::new(r#"(?m)^.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*$"#).unwrap();
-
-    for cap in regex.captures_iter(&stdout) {
-        if let Some(host) = cap.at(2) {
-            if host != "127.0.0.1" {
-                if let Ok(addr) = host.parse::<Ipv4Addr>() {
-                    return Some(IpAddr::V4(addr))
-                }
-            }
-        }
-    }
-
-    None
-}
-
-#[cfg(target_os = "macos")]
+#[cfg(target_family = "unix")]
 pub fn get_local_ip() -> Option<IpAddr> {
     let output = Command::new("ifconfig")
         .output()
@@ -97,7 +74,7 @@ pub fn get_local_ip() -> Option<IpAddr> {
 //    Subnet Mask . . . . . . . . . . . : 255.255.255.0
 //    Default Gateway . . . . . . . . . : 192.168.1.1
 
-#[cfg(target_os = "windows")]
+#[cfg(target_family = "windows")]
 pub fn get_local_ip() -> Option<IpAddr> {
     let output = Command::new("ipconfig")
         .output()
