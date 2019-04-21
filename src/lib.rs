@@ -77,13 +77,11 @@ pub fn get_local_ip() -> Option<IpAddr> {
 }
 
 fn find_ip_by_regex(regex: Regex, content: String) -> Option<IpAddr> {
-    for cap in regex.captures_iter(&content) {
-        if let Some(host) = cap.at(2) {
-            if let Ok(addr) = host.parse::<Ipv4Addr>() {
-                return Some(IpAddr::V4(addr))
-            }
-        }
-    }
+    regex.captures_iter(&content)
+         .filter_map(|cap| cap.at(2))
+         .filter_map(|host| host.parse::<Ipv4Addr>().ok())
+         .filter(|ip_addr| !ip_addr.is_loopback())
+         .map(|ip_addr| IpAddr::V4(ip_addr))
+         .next()
 
-    None
 }
