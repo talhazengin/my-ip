@@ -2,7 +2,8 @@ use std::process::Command;
 use std::net::IpAddr;
 
 pub fn get_public_ip() -> Option<IpAddr> {
-    let output = Command::new("curl https://api.ipify.org")
+    let output = Command::new("curl")
+        .arg("https://api.ipify.org")
         .output()
         .expect("failed to execute `curl`");
 
