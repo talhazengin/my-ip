@@ -1,15 +1,16 @@
 use std::process::Command;
 use std::net::IpAddr;
+use std::error::Error;
 
-pub fn get_public_ip() -> Option<IpAddr> {
-    let output = Command::new("curl")
+pub fn get_public_ip() -> Result<IpAddr, Box<Error>> {
+    let command_result = Command::new("curl")
         .arg("https://api.ipify.org")
-        .output()
-        .expect("failed to execute `curl`");
+        .output();
 
-    let stdout = String::from_utf8(output.stdout).unwrap();
-    
-    stdout.parse::<IpAddr>().ok()
+    match String::from_utf8(command_result?.stdout)?.parse::<IpAddr>() {
+       Err(err) => Err(Box::new(err)),
+       Ok(ip_addr) => Ok(ip_addr)
+    }
 }
 
 #[test]
