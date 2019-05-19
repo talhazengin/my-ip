@@ -3,11 +3,11 @@ use std::net::IpAddr;
 use std::error::Error;
 
 pub fn get_public_ip() -> Result<IpAddr, Box<Error>> {
-    let command_result = Command::new("curl")
+    let result = Command::new("curl")
         .arg("https://api.ipify.org")
         .output();
 
-    match String::from_utf8(command_result?.stdout)?.parse::<IpAddr>() {
+    match String::from_utf8(result?.stdout)?.parse::<IpAddr>() {
        Err(err) => Err(Box::new(err)),
        Ok(ip_addr) => Ok(ip_addr)
     }
