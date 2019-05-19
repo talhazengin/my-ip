@@ -33,7 +33,7 @@ pub fn get_local_ip() -> Option<IpAddr> {
 
     let regex = Regex::new(r#"(?m)^.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*$"#).unwrap();
     
-    return find_ip_by_regex(regex, stdout);
+    find_ip_by_regex(regex, stdout)
 }
 
 
@@ -73,7 +73,7 @@ pub fn get_local_ip() -> Option<IpAddr> {
     
     let regex = Regex::new(r#"(?m)^.*IPv4 Address. . . . . . . . . . . : (Addr:)?(([0-9]*\.){3}[0-9]*).*$"#).unwrap();
 
-    return find_ip_by_regex(regex, stdout);
+    find_ip_by_regex(regex, stdout)
 }
 
 fn find_ip_by_regex(regex: Regex, content: String) -> Option<IpAddr> {
